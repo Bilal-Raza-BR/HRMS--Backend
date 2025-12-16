@@ -13,7 +13,8 @@ const verifyOwner = (req, res, next) => {
       return res.status(403).json({ message: "Only owner access allowed." });
     }
 
-    req.owner = decoded;
+    // req.owner = decoded;
+    req.user = decoded;
     next();
   } catch (error) {
     return res.status(400).json({ message: "Invalid token." });

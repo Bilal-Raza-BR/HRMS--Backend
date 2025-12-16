@@ -24,6 +24,12 @@ const loginUserBySlug = async (req, res) => {
       return res.status(404).json({ message: "User not found in this company." });
     }
    
+     // ✅ Status check
+     if (user.status === "terminated") {
+      return res.status(403).json({ message: "This account has been terminated. Please contact the administrator." });
+    }
+
+
     if (!company.isActive) {
   return res.status(403).json({
     message: "Company service is currently inactive. Please contact the administrator.",

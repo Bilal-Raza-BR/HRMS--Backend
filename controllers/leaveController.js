@@ -5,11 +5,11 @@ const applyLeave = async (req, res) => {
     const { slug } = req.params;
     const userEmail = req.user.email;
 
-    const { fromDate, toDate, reason } = req.body;
+    const { leaveType, startDate, endDate, reason } = req.body;
 
     // ✅ Validation
-    if (!fromDate || !toDate || !reason) {
-      return res.status(400).json({ message: "All fields are required." });
+    if (!leaveType || !startDate || !endDate || !reason) {
+      return res.status(400).json({ message: "Leave type, start date, end date, and reason are all required." });
     }
 
     const company = await Company.findOne({ slug });
@@ -25,8 +25,9 @@ const applyLeave = async (req, res) => {
     if (!user.leaves) user.leaves = [];
 
     user.leaves.push({
-      from: fromDate,
-      to: toDate,
+      leaveType,
+      startDate,
+      endDate,
       reason,
       status: "pending"
     });
@@ -112,6 +113,7 @@ const getAllLeaveRequests = async (req, res) => {
         name: u.name,
         email: u.email,
         role: u.role,
+        profilePic: u.profilePic,
         leaves: u.leaves
       }));
       
@@ -133,8 +135,86 @@ if (allLeaveData.length === 0) {
   }
 };
 
+const deleteLeaveRequest = async (req, res) => {
+  try {
+    const { slug } = req.params;
+    const { role, email: adminEmail } = req.user;
+    const { userEmail, leaveId } = req.body; // leaveIndex ki jagah leaveId
+
+    // ✅ Validation
+    if (!["admin", "hr"].includes(role)) {
+      return res.status(403).json({ message: "Access denied. Only admin or HR can delete leave requests." });
+    }
+
+    if (!userEmail || !leaveId) {
+      return res.status(400).json({ message: "User email and leave ID are required." });
+    }
+
+    const company = await Company.findOne({ slug });
+    if (!company) {
+      return res.status(404).json({ message: "Company not found." });
+    }
+
+    const currentUser = company.users.find(u => u.email === adminEmail);
+    if (!currentUser) {
+      return res.status(403).json({ message: "User not part of this company." });
+    }
+
+    const targetUser = company.users.find(u => u.email === userEmail);
+    if (!targetUser) {
+      return res.status(404).json({ message: "Target user not found." });
+    }
+
+    // Check karein ke leave request exist karti hai ya nahi
+    const leaveExists = targetUser.leaves.some(leave => leave._id.toString() === leaveId);
+    if (!leaveExists) {
+      return res.status(404).json({ message: "Leave request not found." });
+    }
+
+    targetUser.leaves.pull({ _id: leaveId });
+
+    await company.save();
+
+    res.status(200).json({ message: "Leave request has been deleted." });
+
+  } catch (error) {
+    console.error("Leave delete error:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+const deleteAllLeaveRequests = async (req, res) => {
+  try {
+    const { slug } = req.params;
+    const { role, email } = req.user;
+
+    // ✅ Validation: Only admin can perform this action
+    if (role !== "admin") {
+      return res.status(403).json({ message: "Access denied. Only admin can delete all leave requests." });
+    }
+
+    const company = await Company.findOne({ slug });
+    if (!company) {
+      return res.status(404).json({ message: "Company not found." });
+    }
+
+    // Clear leaves for every user in the company
+    company.users.forEach(user => {
+      if (user.leaves) {
+        user.leaves = [];
+      }
+    });
+
+    await company.save();
+
+    res.status(200).json({ message: "All leave requests for the company have been deleted." });
+
+  } catch (error) {
+    console.error("Delete all leaves error:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
 
 
 
-
-module.exports = { applyLeave, updateLeaveStatus, getAllLeaveRequests };
+module.exports = { applyLeave, updateLeaveStatus, getAllLeaveRequests, deleteLeaveRequest, deleteAllLeaveRequests };

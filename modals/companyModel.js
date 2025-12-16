@@ -56,6 +56,10 @@ const companySchema = new mongoose.Schema({
   isActive: {
     type: Boolean,
     default: true,
+  },
+  isBlocked: {
+    type: Boolean,
+    default: false,
   }
 });
 

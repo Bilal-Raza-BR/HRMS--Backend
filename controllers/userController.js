@@ -1,44 +1,5 @@
 const Company = require("../modals/companyModel");
 
-const getMyDashboard = async (req, res) => {
-  try {
-    const { slug } = req.params;
-    const userEmail = req.user.email;
-    const userRole = req.user.role;
-
-    const company = await Company.findOne({ slug });
-    if (!company) {
-      return res.status(404).json({ message: "Company not found." });
-    }
-
-    const user = company.users.find((u) => u.email === userEmail);
-    if (!user) {
-      return res.status(404).json({ message: "User not found in this company." });
-    }
-
-    // ✅ Role-based response
-    let dashboardData = {
-      welcome: `Welcome ${user.name} (${user.role})`,
-      companyName: company.name
-    };
-
-    if (userRole === "admin") {
-      dashboardData.totalUsers = company.users.length;
-      dashboardData.revenue = 500000; // Example static data
-    } else if (userRole === "hr") {
-      dashboardData.totalEmployees = company.users.filter(u => u.role === "employee").length;
-    } else {
-      dashboardData.myProfile = user;
-    }
-
-    res.status(200).json(dashboardData);
-  } catch (error) {
-    console.error("Dashboard error:", error);
-    res.status(500).json({ message: "Internal server error" });
-  }
-};
-
-
 const updateUserSalary = async (req, res) => {
   try {
     const { slug } = req.params;
@@ -90,6 +51,103 @@ const updateUserSalary = async (req, res) => {
   }
 };
 
+const updateUserStatus = async (req, res) => {
+  try {
+    const { slug } = req.params;
+    const { email: userToUpdateEmail, status } = req.body;
+    const { role, companySlug } = req.user;
 
+    // ✅ Security checks
+    if (role !== "admin" && role !== "hr") {
+      return res.status(403).json({ message: "Only Admin or HR can update user status." });
+    }
 
-module.exports = { getMyDashboard , updateUserSalary};
+    if (slug !== companySlug) {
+      return res.status(403).json({ message: "Access denied for this company." });
+    }
+
+    // ✅ Input validation
+    if (!userToUpdateEmail || !status) {
+      return res.status(400).json({ message: "Email and status are required." });
+    }
+
+    // Status ko schema ke enum ke mutabiq validate karein
+    if (!['active', 'terminated'].includes(status)) {
+      return res.status(400).json({ message: "Invalid status value. Must be 'active' or 'terminated'." });
+    }
+
+    const company = await Company.findOne({ slug });
+    if (!company) {
+      return res.status(404).json({ message: "Company not found." });
+    }
+
+    // ✅ User ko dhoond kar update karein
+    const user = company.users.find(u => u.email === userToUpdateEmail);
+    if (!user) {
+      return res.status(404).json({ message: "User not found in this company." });
+    }
+
+    // ✅ Status update karein
+    user.status = status;
+
+    await company.save();
+
+    res.status(200).json({ message: `User status updated to '${status}' successfully.` });
+
+  } catch (error) {
+    console.error("Update user status error:", error);
+    res.status(500).json({ message: "Internal server error." });
+  }
+};
+
+const deleteUser = async (req, res) => {
+  try {
+    const { slug } = req.params;
+    const { email: userToDeleteEmail } = req.body;
+    const { role, companySlug } = req.user;
+
+    // ✅ Security checks
+    if (role !== "admin") {
+      return res.status(403).json({ message: "Only admin can delete users." });
+    }
+
+    if (slug !== companySlug) {
+      return res.status(403).json({ message: "Access denied for this company." });
+    }
+
+    // ✅ Input validation
+    if (!userToDeleteEmail) {
+      return res.status(400).json({ message: "User email is required." });
+    }
+
+    // Pehle company ko dhoondein
+    const company = await Company.findOne({ slug });
+    if (!company) {
+      return res.status(404).json({ message: "Company not found." });
+    }
+
+    // User ko dhoond kar uski details lein
+    const userToDelete = company.users.find(u => u.email === userToDeleteEmail);
+
+    if (!userToDelete) {
+      return res.status(404).json({ message: "User not found in this company." });
+    }
+
+    // Admin khud ko ya kisi aur admin ko delete na kar sake
+    if (userToDelete.role === 'admin') {
+      return res.status(400).json({ message: "Admin users cannot be deleted." });
+    }
+
+    // User ko 'users' array se remove karein
+    company.users.pull({ _id: userToDelete._id });
+    await company.save();
+
+    res.status(200).json({ message: `User ${userToDeleteEmail} has been deleted successfully.` });
+
+  } catch (error) {
+    console.error("Delete user error:", error);
+    res.status(500).json({ message: "Internal server error." });
+  }
+};
+
+module.exports = { updateUserSalary, updateUserStatus, deleteUser };

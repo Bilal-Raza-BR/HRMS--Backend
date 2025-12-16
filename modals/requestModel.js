@@ -22,10 +22,17 @@ const requestSchema = new mongoose.Schema({
   message: {
     type: String,
   },
-  isHandled: {
-    type: Boolean,
-    default: false,
-  },
+  handledStatus: {
+  type: String,
+  enum: ["approved", "rejected", null],
+  default: null,
+},
+isHandled: {
+  type: Boolean,
+  default: false,
+},
+
+
   createdAt: {
     type: Date,
     default: Date.now,

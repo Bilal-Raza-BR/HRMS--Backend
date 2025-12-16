@@ -1,11 +1,15 @@
 const mongoose = require("mongoose");
 
 const leaveSchema = new mongoose.Schema({
-  from: {
+  leaveType: {
+    type: String,
+    required: true,
+  },
+  startDate: {
     type: Date,
     required: true,
   },
-  to: {
+  endDate: {
     type: Date,
     required: true,
   },
@@ -18,10 +22,8 @@ const leaveSchema = new mongoose.Schema({
     enum: ["pending", "approved", "rejected"],
     default: "pending",
   },
-  appliedAt: {
-    type: Date,
-    default: Date.now,
-  },
+}, {
+  timestamps: true // Automatically adds createdAt and updatedAt
 });
 
 module.exports = leaveSchema;

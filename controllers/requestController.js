@@ -35,7 +35,7 @@ if (!companyName || !companyEmail || !industry || !contactPerson || !phone) {
 
     await request.save();
 
-    res.status(201).json({ message: "Your request has been submitted successfully!" });
+    res.status(200).json({ message: "Your request has been submitted successfully!" });
   } catch (error) {
     console.error("Error creating request:", error);
     res.status(500).json({ message: "Internal server error" });
