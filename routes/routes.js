@@ -10,9 +10,9 @@ const { loginUserBySlug } = require("../controllers/authController");
 router.post("/login/:slug", loginUserBySlug);
 
 // // ==== 3. COMPANY REGISTRATION ====
-router.get('/', (req, res) => {
-    res.send('Welcome to the HRMS API');
-})
+// router.get('/', (req, res) => {
+//     res.send('Welcome to the HRMS API');
+// })
 const {
     createCompany,
     createCompanyAdmin,
