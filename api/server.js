@@ -12,31 +12,21 @@ const app = express();
 // DB connect
 connectDB();
 
+const allowedOrigins = [
+  process.env.FRONTEND_URL, // Local dev URL from .env
+  "https://hrms-frontend-rosy-omega.vercel.app", // Production domain
+  /^https:\/\/hrms-frontend-.*-bilal-raza-brs-projects\.vercel\.app$/, // Regex for Vercel preview URLs
+];
+
+const corsOptions = {
+  origin: allowedOrigins,
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
+  allowedHeaders: ["Content-Type", "Authorization"],
+  credentials: true,
+};
+
 // ✅ CORS setup
-app.use(
-  cors({
-    origin: function (origin, callback) {
-      // Allow requests with no origin (like mobile apps or curl requests)
-      if (!origin) return callback(null, true);
-
-      const allowedOrigins = [
-        process.env.FRONTEND_URL, // Local dev URL (e.g., http://localhost:5173)
-        "https://hrms-frontend-rosy-omega.vercel.app", // Production domain
-      ];
-
-      const vercelPreviewPattern = /^https:\/\/hrms-frontend-.*-bilal-raza-brs-projects\.vercel\.app$/;
-
-      if (allowedOrigins.includes(origin) || vercelPreviewPattern.test(origin)) {
-        callback(null, true);
-      } else {
-        callback(new Error("This origin is not allowed by CORS policy."));
-      }
-    },
-    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization"],
-    credentials: true,
-  })
-);
+app.use(cors(corsOptions));
 
 // ✅ Handle preflight requests
 app.options("*", cors());
