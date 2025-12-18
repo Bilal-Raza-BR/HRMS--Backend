@@ -3,29 +3,35 @@ const cors = require("cors");
 const dotenv = require("dotenv");
 const cookieParser = require("cookie-parser");
 
-const connectDB = require("../config/db"); // ⚠️ path update
+const connectDB = require("../config/db");
 
 dotenv.config();
 
 const app = express();
 
-// DB connect (safe for vercel)
+// DB connect
 connectDB();
 
-app.use(cors({
-  origin: "*",
-  credentials: true
-}));
+// ✅ CORS FIX (IMPORTANT)
+app.use(
+  cors({
+    origin: [
+      "http://localhost:5173",
+      "https://hrms-frontend-rosy-omega.vercel.app"
+    ],
+    credentials: true
+  })
+);
+
 app.use(express.json());
 app.use(cookieParser());
 
-// ✅ Root test route (VERY IMPORTANT)
+// Test route
 app.get("/", (req, res) => {
   res.send("Backend running on Vercel 🚀");
 });
 
-// Routes
-app.use("/api", require("../routes/routes")); // ⚠️ path update
+// API routes
+app.use("/api", require("../routes/routes"));
 
-// ❌ app.listen REMOVED
 module.exports = app;
