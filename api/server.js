@@ -13,22 +13,38 @@ const app = express();
 connectDB();
 
 const allowedOrigins = [
-  process.env.FRONTEND_URL, // Local dev URL from .env
-  "https://hrms-frontend-rosy-omega.vercel.app", // Production domain
-  /^https:\/\/hrms-frontend-.*-bilal-raza-brs-projects\.vercel\.app$/, // Regex for Vercel preview URLs
+  process.env.FRONTEND_URL,
+  "https://hrms-frontend-rosy-omega.vercel.app",
+  /^https:\/\/hrms-frontend-.*-bilal-raza-brs-projects\.vercel\.app$/,
 ];
 
 const corsOptions = {
-  origin: allowedOrigins,
-  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
+  origin: function (origin, callback) {
+    // allow requests with no origin (Postman, server-side)
+    if (!origin) return callback(null, true);
+
+    const allowed = allowedOrigins.some((o) =>
+      o instanceof RegExp ? o.test(origin) : o === origin
+    );
+
+    if (allowed) {
+      callback(null, true);
+    } else {
+      callback(new Error("Not allowed by CORS"));
+    }
+  },
+  methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization"],
   credentials: true,
 };
 
-// ✅ CORS setup
+// ✅ CORS middleware
 app.use(cors(corsOptions));
 
-// Parse JSON & cookies
+// ✅ VERY IMPORTANT (preflight)
+app.options("*", cors(corsOptions));
+
+// Body & cookies
 app.use(express.json());
 app.use(cookieParser());
 
