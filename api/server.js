@@ -15,7 +15,10 @@ connectDB();
 // CORS Configuration
 app.use(
   cors({
-    origin: ["https://hrms-frontend-rosy-omega.vercel.app"], // Aapka frontend URL
+    origin: [
+      "https://hrms-frontend-rosy-omega.vercel.app",
+      "https://hrms-frontend-ct7tngh1p-bilal-raza-brs-projects.vercel.app",
+    ], // Aapke frontend URLs
     credentials: true, // Cookies allow karne ke liye
   })
 );
