@@ -1,6 +1,7 @@
 const express = require("express");
 const dotenv = require("dotenv");
 const cookieParser = require("cookie-parser");
+const cors = require("cors");
 
 const connectDB = require("../config/db");
 
@@ -10,6 +11,14 @@ const app = express();
 
 // DB connect
 connectDB();
+
+// CORS Configuration
+app.use(
+  cors({
+    origin: ["https://hrms-frontend-rosy-omega.vercel.app"], // Aapka frontend URL
+    credentials: true, // Cookies allow karne ke liye
+  })
+);
 
 // Body & cookies
 app.use(express.json());
