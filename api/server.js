@@ -10,7 +10,7 @@ dotenv.config();
 const app = express();
 
 // DB connect
-connectDB();
+// connectDB();
 
 const allowedOrigins = [
   process.env.FRONTEND_URL,
