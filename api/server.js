@@ -13,10 +13,22 @@ const app = express();
 connectDB();
 
 // CORS Configuration
-app.use(cors({
-  origin: true, // Har request ko allow karega (Reflects request origin)
-  credentials: true, // Cookies ko allow karega
-}));
+// Manual Middleware: Ye har request par zabardasti headers lagayega
+app.use((req, res, next) => {
+  const origin = req.headers.origin;
+  if (origin) {
+    res.setHeader("Access-Control-Allow-Origin", origin);
+  }
+  res.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Requested-With");
+  res.setHeader("Access-Control-Allow-Credentials", "true");
+
+  // Agar browser pre-check (OPTIONS) request bheje, to yahin se OK bol do
+  if (req.method === "OPTIONS") {
+    return res.sendStatus(200);
+  }
+  next();
+});
 
 // Body & cookies
 app.use(express.json());
