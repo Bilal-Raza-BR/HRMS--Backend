@@ -13,15 +13,22 @@ const app = express();
 connectDB();
 
 // CORS Configuration
-app.use(
-  cors({
-    origin: [
-      "https://hrms-frontend-rosy-omega.vercel.app",
-      "https://hrms-frontend-ct7tngh1p-bilal-raza-brs-projects.vercel.app",
-    ], // Aapke frontend URLs
-    credentials: true, // Cookies allow karne ke liye
-  })
-);
+const corsOptions = {
+  credentials: true,
+  origin: (origin, callback) => {
+    // Agar request Postman ya mobile app se hai (jiska origin nahi hota) to ijazat do.
+    if (!origin) return callback(null, true);
+
+    // Agar origin aapke Vercel project se match karta hai to ijazat do.
+    // Yeh aapke tamam frontend deployments (e.g., hrms-frontend-*) ke liye kaam karega.
+    if (origin.endsWith("-bilal-raza-brs-projects.vercel.app")) {
+      return callback(null, true);
+    }
+
+    callback(new Error("Not allowed by CORS"));
+  },
+};
+app.use(cors(corsOptions));
 
 // Body & cookies
 app.use(express.json());
