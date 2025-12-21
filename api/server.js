@@ -9,26 +9,30 @@ dotenv.config();
 
 const app = express();
 
-// ===== DB Connection (Serverless Safe) =====
+// ===== DB Connection (SAFE VERSION) =====
 let isConnected = false;
+
 const dbConnect = async () => {
-  if (!isConnected) {
+  if (isConnected) return;
+
+  try {
     await connectDB();
     isConnected = true;
+    console.log("✅ DB Connected");
+  } catch (err) {
+    console.error("❌ DB Connection Failed:", err.message);
   }
 };
 
-app.use(async (req, res, next) => {
-  await dbConnect();
-  next();
-});
+// ⚠️ DB connect once (NOT per request)
+dbConnect();
 
-// ===== CORS (IMPORTANT) =====
+// ===== CORS =====
 app.use(
   cors({
     origin: [
       "https://hrms-frontend-rosy-omega.vercel.app",
-      "https://hrms-frontend-git-main-bilal-raza-brs-projects.vercel.app"
+      "https://hrms-frontend-git-main-bilal-raza-brs-projects.vercel.app",
     ],
     credentials: true,
   })
