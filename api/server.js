@@ -9,7 +9,7 @@ dotenv.config();
 
 const app = express();
 
-// ⚠️ DB connection (serverless-safe way)
+// ===== DB Connection (Serverless Safe) =====
 let isConnected = false;
 const dbConnect = async () => {
   if (!isConnected) {
@@ -23,15 +23,26 @@ app.use(async (req, res, next) => {
   next();
 });
 
-app.use(cors());
+// ===== CORS (IMPORTANT) =====
+app.use(
+  cors({
+    origin: [
+      "https://hrms-frontend-rosy-omega.vercel.app",
+      "https://hrms-frontend-git-main-bilal-raza-brs-projects.vercel.app"
+    ],
+    credentials: true,
+  })
+);
+
 app.use(express.json());
 app.use(cookieParser());
-//test route
+
+// ===== Test Route =====
 app.get("/", (req, res) => {
   res.send("Backend API is running 🚀");
 });
-// Routes
+
+// ===== Routes =====
 app.use("/api", require("../routes/routes"));
 
-// ❌ app.listen hata diya
 module.exports = app;
