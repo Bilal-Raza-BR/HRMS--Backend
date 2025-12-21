@@ -14,15 +14,15 @@ connectDB();
 
 // ✅ CORS OPTIONS (bahar define)
 const corsOptions = {
-  origin: true, // frontend auto allow
+  origin: true, // jo frontend request kare usko allow karega
   credentials: true,
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-  allowedHeaders: ["Content-Type", "Authorization"]
+  allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"]
 };
 
-// ✅ CORS use karo
+// ✅ CORS middleware
 app.use(cors(corsOptions));
-app.options("*", cors(corsOptions));
+app.options("*", cors(corsOptions)); // preflight fix
 
 // Body & cookies
 app.use(express.json());
