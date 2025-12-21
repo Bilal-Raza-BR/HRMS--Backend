@@ -63,7 +63,7 @@ const sendInvite = async (req, res) => {
       { expiresIn: "2d" }
     );
 
-    const link = `http://localhost:5173/invite?token=${token}`;
+    const link = `https://hrms-frontend-rosy-omega.vercel.app/invite?token=${token}`;
 
 
     const html = `

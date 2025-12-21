@@ -221,7 +221,7 @@ const updateApplicationStatus = async (req, res) => {
         { expiresIn: "2d" }
       );
 
-      const inviteLink = `http://localhost:5173/companyInvite?token=${token}`;
+      const inviteLink = `https://hrms-frontend-rosy-omega.vercel.app/companyInvite?token=${token}`;
       const subject = `You're hired at ${company.name}`;
       const html = `
         <div style="font-family: Arial, sans-serif;">
@@ -285,7 +285,7 @@ const manualInviteUser = async (req, res) => {
       { expiresIn: "2d" }
     );
 
-    const inviteLink = `http://localhost:5173/companyInvite?token=${token}`;
+    const inviteLink = `https://hrms-frontend-rosy-omega.vercel.app/companyInvite?token=${token}`;
     const subject = `Invitation to join ${company.name}`;
     const html = `
       <div style="font-family: sans-serif;">
