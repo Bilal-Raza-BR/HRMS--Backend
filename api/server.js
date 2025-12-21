@@ -1,7 +1,7 @@
 const express = require("express");
+const cors = require("cors");
 const dotenv = require("dotenv");
 const cookieParser = require("cookie-parser");
-const cors = require("cors");
 
 const connectDB = require("../config/db");
 
@@ -9,32 +9,26 @@ dotenv.config();
 
 const app = express();
 
-// DB connect
-connectDB();
+// ⚠️ DB connection (serverless-safe way)
+let isConnected = false;
+const dbConnect = async () => {
+  if (!isConnected) {
+    await connectDB();
+    isConnected = true;
+  }
+};
 
-// CORS
-app.use(cors({
-  origin: true,
-  credentials: true,
-  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-  allowedHeaders: ["Content-Type", "Authorization"]
-}));
+app.use(async (req, res, next) => {
+  await dbConnect();
+  next();
+});
 
-app.options("*", cors());
-
-// Body & cookies
+app.use(cors());
 app.use(express.json());
 app.use(cookieParser());
 
-// Test route
-app.get("/", (req, res) => {
-  res.send("Backend running on Vercel 🚀");
-});
-
-// API routes
+// Routes
 app.use("/api", require("../routes/routes"));
 
-// ✅ IMPORTANT: export as handler
-module.exports = (req, res) => {
-  return app(req, res);
-};
+// ❌ app.listen hata diya
+module.exports = app;
