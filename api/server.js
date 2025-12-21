@@ -26,7 +26,10 @@ app.use(async (req, res, next) => {
 app.use(cors());
 app.use(express.json());
 app.use(cookieParser());
-
+//test route
+app.get("/", (req, res) => {
+  res.send("Backend API is running 🚀");
+});
 // Routes
 app.use("/api", require("../routes/routes"));
 
