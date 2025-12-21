@@ -12,23 +12,20 @@ const app = express();
 // DB connect
 connectDB();
 
-// CORS Configuration
-// Manual Middleware: Ye har request par zabardasti headers lagayega
-app.use((req, res, next) => {
-  const origin = req.headers.origin;
-  if (origin) {
-    res.setHeader("Access-Control-Allow-Origin", origin);
-  }
-  res.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
-  res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Requested-With");
-  res.setHeader("Access-Control-Allow-Credentials", "true");
+// ✅ CORS CONFIG (ONLY THIS)
+const corsOptions = {
+  origin: [
+    "https://hrms-frontend-rosy-omega.vercel.app",
+    "https://hrms-frontend-git-main-bilal-raza-brs-projects.vercel.app",
+    "https://hrms-frontend-ct7tngh1p-bilal-raza-brs-projects.vercel.app"
+  ],
+  credentials: true,
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"]
+};
 
-  // Agar browser pre-check (OPTIONS) request bheje, to yahin se OK bol do
-  if (req.method === "OPTIONS") {
-    return res.sendStatus(200);
-  }
-  next();
-});
+app.use(cors(corsOptions));
+app.options("*", cors(corsOptions)); // ✅ preflight fix
 
 // Body & cookies
 app.use(express.json());
