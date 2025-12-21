@@ -12,20 +12,17 @@ const app = express();
 // DB connect
 connectDB();
 
-// ✅ CORS CONFIG (ONLY THIS)
+// ✅ CORS OPTIONS (bahar define)
 const corsOptions = {
-  origin: [
-    "https://hrms-frontend-rosy-omega.vercel.app",
-    "https://hrms-frontend-git-main-bilal-raza-brs-projects.vercel.app",
-    "https://hrms-frontend-ct7tngh1p-bilal-raza-brs-projects.vercel.app"
-  ],
+  origin: true, // frontend auto allow
   credentials: true,
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization"]
 };
 
+// ✅ CORS use karo
 app.use(cors(corsOptions));
-app.options("*", cors(corsOptions)); // ✅ preflight fix
+app.options("*", cors(corsOptions));
 
 // Body & cookies
 app.use(express.json());
